@@ -48,7 +48,7 @@ export default function Recs({ userId }: RecsType) {
               ? rec.user_2_username
               : rec.user_1_username
           }
-          isActive={false}
+          isActive={true}
         />
       ))}
       <CreateRec />
@@ -72,7 +72,7 @@ function RecBtn({ recId, img, user2Name, isActive }: RecBtnType) {
         <img src={img} alt={`${user2Name}'s pfp`} className="object-cover" />
       </div>
 
-      {isActive ?? <h1>{user2Name}</h1>}
+      {isActive ? <h1>{user2Name}</h1> : ''}
     </Button>
   );
 }
