@@ -12,9 +12,21 @@ import { useRef } from "react";
 export default function CreateRec() {
   const createUserInpt = useRef<HTMLInputElement | null>(null);
 
-  const createRecommendation = () => {
+  const createRecommendation = async () => {
+    //check if empty
     if (createUserInpt.current != null) {
       console.log(createUserInpt.current.value);
+      const response = await fetch("/api/create/recommendation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_2_username: createUserInpt.current.value,
+        }),
+      });
+
+      console.log(response);
     } else {
       console.error("input is null");
     }
@@ -23,7 +35,9 @@ export default function CreateRec() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline">Create Recommendation</Button>
+        <Button variant="outline" className="h-16 w-16 text-2xl">
+          +
+        </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">
         <div className="grid gap-4">
