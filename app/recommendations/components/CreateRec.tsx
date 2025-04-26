@@ -35,7 +35,10 @@ export default function CreateRec() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="h-16 w-16 text-2xl">
+        <Button
+          variant="outline"
+          className="cursor-pointer h-[55px] w-[55px] m-2 text-2xl rounded-sm"
+        >
           +
         </Button>
       </PopoverTrigger>

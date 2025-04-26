@@ -47,6 +47,8 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  background-image: url("https://gs261yrzoi.ufs.sh/f/pra1ARSHOHiLzzdvENJ0oHfRDkv6j2ZagOVUGWhXtiYxu7LI");
+  background-size: cover;
 }
 
 :root {
@@ -91,7 +93,7 @@ body {
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.21 0.006 285.885);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.92 0.004 286.32);
+  --primary: #d1fc8b;
   --primary-foreground: oklch(0.21 0.006 285.885);
   --secondary: oklch(0.274 0.006 286.033);
   --secondary-foreground: oklch(0.985 0 0);

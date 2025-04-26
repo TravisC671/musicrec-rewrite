@@ -1,38 +1,63 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useRef, useState } from "react";
+import { Dispatch, SetStateAction, useRef, useState } from "react";
+import { SongType } from "./Content";
 
-export default function AddSong() {
+type AddSongType = {
+  currentRec: string;
+  setSongData: Dispatch<SetStateAction<Record<string, SongType[]>>>;
+};
+
+export default function AddSong({ currentRec, setSongData }: AddSongType) {
   const [isActive, setActive] = useState(true);
 
-  const urlRef = useRef<HTMLInputElement | null>(null)
+  const urlRef = useRef<HTMLInputElement | null>(null);
 
   const fetchSong = async () => {
-
     if (urlRef.current == null) {
-      return
+      return;
     }
 
-    const res = await fetch('/api/create/song', {
-      method: 'POST',
-      body: JSON.stringify({ url: urlRef.current.value }),
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("/api/create/song", {
+      method: "POST",
+      body: JSON.stringify({
+        url: urlRef.current.value,
+        recommendationID: currentRec,
+      }),
+      headers: { "Content-Type": "application/json" },
     });
 
     const data = await res.json();
     //TODO check if data is valid
-    setActive(false)
-    urlRef.current.value = ""
-    console.log(data)
+    let fakeData: SongType = {
+      created_at: "",
+      id: Date.now(), //cause of key prop
+      is_rated: false,
+      recommendation_id: currentRec,
+      sender_clerk_user_id: "",
+      song_author: data.artist,
+      song_cover: data.cover,
+      song_name: data.name,
+      spotify_url: urlRef.current.value,
+    };
+
+    setActive(false);
+    urlRef.current.value = "";
+    setSongData((prev) => ({
+      ...prev,
+      [currentRec]: [...(prev[currentRec] || []), fakeData],
+    }));
+    console.log(data);
   };
 
   return (
     <>
       <Button
         onClick={() => setActive(!isActive)}
-        className={`${!isActive ? "w-40" : "w-16"
-          } cursor-pointer transition-all duration-300 ease-in-out`}
+        className={`${
+          !isActive ? "w-40" : "w-16"
+        } cursor-pointer transition-all duration-300 ease-in-out overflow-hidden`}
       >
         {!isActive ? "Recommend Song" : "Cancel"}
       </Button>
@@ -45,7 +70,8 @@ export default function AddSong() {
             ${isActive ? "w-full opacity-100" : "w-0 opacity-0"} overflow-hidden
           `}
       />
-      <Button onClick={fetchSong}
+      <Button
+        onClick={fetchSong}
         className={`
             transition-all duration-300 ease-in-out
             bg-white border border-gray-300 px-3 py-1 w-fit 
