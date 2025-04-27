@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import Ellipsis from "@/components/icons/Ellipsis";
+import { Badge } from "@/components/ui/badge";
 
 type SongType = {
   created_at: string;
@@ -28,6 +29,16 @@ type SongType = {
   song_cover: string;
   song_name: string;
   spotify_url: string;
+  Ratings: RatingType[];
+};
+
+type RatingType = {
+  id: number;
+  song_id: number;
+  rating: number;
+  comment: string;
+  created_at: string;
+  clerk_user_id: string;
 };
 
 type selectedSongType = {
@@ -43,23 +54,55 @@ export default function Content({ userId }: { userId: string }) {
     selectedSong: null,
   });
 
+  const ratingLabels = ["F", "D", "C", "B", "A", "S"];
+
   useEffect(() => {
     const fetchSongs = async () => {
       if (songData[currentRec] || currentRec === "") return;
 
       const { data, error } = await supabase
         .from("Songs")
-        .select()
-        .eq("recommendation_id", parseInt(currentRec));
+        .select(
+          `
+        id,
+        created_at,
+        song_name,
+        song_author,
+        song_cover,
+        spotify_url,
+        sender_clerk_user_id,
+        recommendation_id,
+        is_rated,
+        Ratings (
+          id,
+          clerk_user_id,
+          rating,
+          comment,
+          created_at
+        )
+      `
+        )
+        .eq("recommendation_id", currentRec);
+
       if (error) {
         console.error(error);
       } else {
-        setSongData((prev) => ({ ...prev, [currentRec]: data }));
+        console.log(data);
+        setSongData((prev) => ({ ...prev, [currentRec]: data as SongType[] }));
       }
     };
 
     fetchSongs();
   }, [currentRec]);
+
+  let rating = "";
+
+  if (selectedSong.selectedSong !== null) {
+    rating =
+      ratingLabels[
+        songData[currentRec][selectedSong.selectedSong].Ratings[0]?.rating
+      ] ?? "";
+  }
 
   return (
     <main className="flex flex-col h-full w-full max-w-6xl row-start-1 items-center sm:items-start ">
@@ -96,10 +139,16 @@ export default function Content({ userId }: { userId: string }) {
                       src={song.song_cover}
                       className="w-12 rounded-[2px] pointer-events-none"
                     />
-                    <div className="w-72 pointer-events-none">
-                      <p>{song.song_name}</p>
-                      <p>{song.song_author}</p>
+                    <div className="w-56 pointer-events-none">
+                      <p className="overflow-ellipsis">{song.song_name}</p>
+                      <p className="overflow-ellipsis">{song.song_author}</p>
                     </div>
+                    {song.Ratings[0] && (
+                      <Badge className="h-min my-auto">
+                        {ratingLabels[song.Ratings[0].rating]}
+                      </Badge>
+                    )}
+
                     <Button
                       className="m-auto opacity-0 group-hover:opacity-100"
                       variant={"menu"}
@@ -136,8 +185,8 @@ export default function Content({ userId }: { userId: string }) {
                 </div>
               </div>
               <div className="row-start-2 flex justify-between">
-                <Select>
-                  <SelectTrigger className="w-[180px]">
+                <Select value={rating}>
+                  <SelectTrigger className="w-[180px] duration-0">
                     <SelectValue placeholder="Select a Rating" />
                   </SelectTrigger>
                   <SelectContent>

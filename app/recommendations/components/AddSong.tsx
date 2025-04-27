@@ -40,6 +40,7 @@ export default function AddSong({ currentRec, setSongData }: AddSongType) {
       song_cover: data.cover,
       song_name: data.name,
       spotify_url: urlRef.current.value,
+      Ratings: [],
     };
 
     setActive(false);
