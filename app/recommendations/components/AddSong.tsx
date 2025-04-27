@@ -44,10 +44,12 @@ export default function AddSong({ currentRec, setSongData }: AddSongType) {
 
     setActive(false);
     urlRef.current.value = "";
-    setSongData((prev) => ({
-      ...prev,
-      [currentRec]: [...(prev[currentRec] || []), fakeData],
-    }));
+    if (!data.error) {
+      setSongData((prev) => ({
+        ...prev,
+        [currentRec]: [...(prev[currentRec] || []), fakeData],
+      }));
+    }
     console.log(data);
   };
 
@@ -56,25 +58,25 @@ export default function AddSong({ currentRec, setSongData }: AddSongType) {
       <Button
         onClick={() => setActive(!isActive)}
         className={`${
-          !isActive ? "w-40" : "w-16"
-        } cursor-pointer transition-all duration-300 ease-in-out overflow-hidden`}
+          !isActive ? "w-40" : "w-24"
+        } cursor-pointer transition-all duration-300 text-base font-bold ease-in-out overflow-hidden`}
       >
-        {!isActive ? "Recommend Song" : "Cancel"}
+        {!isActive ? "Add Song" : "Cancel"}
       </Button>
       <Input
         ref={urlRef}
         placeholder="Paste Spotify Url"
         className={`
             transition-all duration-300 ease-in-out
-            bg-white border border-gray-300 px-3 py-1
+             outline-[#2F3B37] px-3 py-1
             ${isActive ? "w-full opacity-100" : "w-0 opacity-0"} overflow-hidden
           `}
       />
       <Button
         onClick={fetchSong}
         className={`
-            transition-all duration-300 ease-in-out
-            bg-white border border-gray-300 px-3 py-1 w-fit 
+            transition-all duration-300 font-bold text-base ease-in-out bg-primary
+              px-3 py-1 w-fit 
             ${isActive ? "opacity-100" : "opacity-0"} overflow-hidden
           `}
       >
