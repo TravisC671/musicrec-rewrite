@@ -185,22 +185,41 @@ export default function Content({ userId }: { userId: string }) {
                 </div>
               </div>
               <div className="row-start-2 flex justify-between">
-                <Select value={rating}>
-                  <SelectTrigger className="w-[180px] duration-0">
-                    <SelectValue placeholder="Select a Rating" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Ratings</SelectLabel>
-                      <SelectItem value="S">S - Instant Add</SelectItem>
-                      <SelectItem value="A">A - Loved It</SelectItem>
-                      <SelectItem value="B">B - Solid</SelectItem>
-                      <SelectItem value="C">C - It's Fine</SelectItem>
-                      <SelectItem value="D">D - Not My Thing</SelectItem>
-                      <SelectItem value="F">F - Skip</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                {rating !== "" ? (
+                  <Select value={rating}>
+                    <SelectTrigger className="w-[180px] duration-0">
+                      <SelectValue placeholder="Select a Rating" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Ratings</SelectLabel>
+                        <SelectItem value="S">S - Instant Add</SelectItem>
+                        <SelectItem value="A">A - Loved It</SelectItem>
+                        <SelectItem value="B">B - Solid</SelectItem>
+                        <SelectItem value="C">C - It's Fine</SelectItem>
+                        <SelectItem value="D">D - Not My Thing</SelectItem>
+                        <SelectItem value="F">F - Skip</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Select>
+                    <SelectTrigger className="w-[180px] duration-0">
+                      <SelectValue placeholder="Select a Rating" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Ratings</SelectLabel>
+                        <SelectItem value="S">S - Instant Add</SelectItem>
+                        <SelectItem value="A">A - Loved It</SelectItem>
+                        <SelectItem value="B">B - Solid</SelectItem>
+                        <SelectItem value="C">C - It's Fine</SelectItem>
+                        <SelectItem value="D">D - Not My Thing</SelectItem>
+                        <SelectItem value="F">F - Skip</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
 
                 <Button className="w-28 font-bold text-base">Send</Button>
               </div>
