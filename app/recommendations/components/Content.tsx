@@ -1,8 +1,8 @@
 "use client";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import AddSong from "./AddSong";
+import AddSong from "./AddSongBtn";
 import Recs from "./Recs";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import supabase from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import SRToggle from "./SRToggle";
@@ -16,8 +16,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import Ellipsis from "@/components/icons/Ellipsis";
+import Ellipsis from "@/components/icons/ellipsis";
 import { Badge } from "@/components/ui/badge";
+import { ratingLabels } from "@/lib/constants";
 
 type SongType = {
   created_at: string;
@@ -53,8 +54,6 @@ export default function Content({ userId }: { userId: string }) {
     currentRec: "",
     selectedSong: null,
   });
-
-  const ratingLabels = ["F", "D", "C", "B", "A", "S"];
 
   useEffect(() => {
     const fetchSongs = async () => {
@@ -95,15 +94,6 @@ export default function Content({ userId }: { userId: string }) {
     fetchSongs();
   }, [currentRec]);
 
-  let rating = "";
-
-  if (selectedSong.selectedSong !== null) {
-    rating =
-      ratingLabels[
-        songData[currentRec][selectedSong.selectedSong].Ratings[0]?.rating
-      ] ?? "";
-  }
-
   return (
     <main className="flex flex-col h-full w-full max-w-6xl row-start-1 items-center sm:items-start ">
       <Recs
@@ -124,114 +114,144 @@ export default function Content({ userId }: { userId: string }) {
               {!songData[currentRec] ? (
                 <p></p>
               ) : (
-                songData[currentRec].map((song, index) => (
-                  <div
-                    key={song.id}
-                    onClick={() =>
-                      setSelectedSong({
-                        currentRec: currentRec,
-                        selectedSong: index,
-                      })
-                    }
-                    className="flex px-2 py-1 flex-row gap-2 group hover:bg-accent group"
-                  >
-                    <img
-                      src={song.song_cover}
-                      className="w-12 rounded-[2px] pointer-events-none"
-                    />
-                    <div className="w-56 pointer-events-none">
-                      <p className="overflow-ellipsis">{song.song_name}</p>
-                      <p className="overflow-ellipsis">{song.song_author}</p>
-                    </div>
-                    {song.Ratings[0] && (
-                      <Badge className="h-min my-auto">
-                        {ratingLabels[song.Ratings[0].rating]}
-                      </Badge>
-                    )}
-
-                    <Button
-                      className="m-auto opacity-0 group-hover:opacity-100"
-                      variant={"menu"}
-                    >
-                      <Ellipsis />
-                    </Button>
-                  </div>
-                ))
+                <Songs
+                  songData={songData}
+                  currentRec={currentRec}
+                  setSelectedSong={setSelectedSong}
+                />
               )}
             </div>
           </ScrollArea>
         </div>
-        {selectedSong.currentRec === currentRec &&
-          selectedSong.selectedSong !== null && (
-            <div className="col-start-2 pl-[10px] p-[20px] gap-[20px] grid grid-rows-[216px_2.25rem_216px]">
-              <div className="w-full bg-[#101314] p-[20px] rounded-md outline-1 flex flex-row gap-[20px] row-start-1">
-                <div className="w-44 h-44 rounded-sm overflow-hidden">
-                  <img
-                    src={
-                      songData[currentRec][selectedSong.selectedSong].song_cover
-                    }
-                  ></img>
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold">
-                    {songData[currentRec][selectedSong.selectedSong].song_name}
-                  </h1>
-                  <h1 className="text-xl font-normal">
-                    {
-                      songData[currentRec][selectedSong.selectedSong]
-                        .song_author
-                    }
-                  </h1>
-                </div>
-              </div>
-              <div className="row-start-2 flex justify-between">
-                {rating !== "" ? (
-                  <Select value={rating}>
-                    <SelectTrigger className="w-[180px] duration-0">
-                      <SelectValue placeholder="Select a Rating" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Ratings</SelectLabel>
-                        <SelectItem value="S">S - Instant Add</SelectItem>
-                        <SelectItem value="A">A - Loved It</SelectItem>
-                        <SelectItem value="B">B - Solid</SelectItem>
-                        <SelectItem value="C">C - It's Fine</SelectItem>
-                        <SelectItem value="D">D - Not My Thing</SelectItem>
-                        <SelectItem value="F">F - Skip</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <Select>
-                    <SelectTrigger className="w-[180px] duration-0">
-                      <SelectValue placeholder="Select a Rating" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Ratings</SelectLabel>
-                        <SelectItem value="S">S - Instant Add</SelectItem>
-                        <SelectItem value="A">A - Loved It</SelectItem>
-                        <SelectItem value="B">B - Solid</SelectItem>
-                        <SelectItem value="C">C - It's Fine</SelectItem>
-                        <SelectItem value="D">D - Not My Thing</SelectItem>
-                        <SelectItem value="F">F - Skip</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                )}
-
-                <Button className="w-28 font-bold text-base">Send</Button>
-              </div>
-              <Textarea
-                placeholder="Add a comment (optional)"
-                className="h-4"
-              />
-            </div>
-          )}
+        <DisplayArea
+          songData={songData}
+          currentRec={currentRec}
+          selectedSong={selectedSong}
+        />
       </div>
     </main>
   );
+}
+
+type SongsFnType = {
+  songData: Record<string, SongType[]>;
+  currentRec: string;
+  setSelectedSong: Dispatch<SetStateAction<selectedSongType>>;
+};
+function Songs({ songData, currentRec, setSelectedSong }: SongsFnType) {
+  return songData[currentRec].map((song, index) => (
+    <div
+      key={song.id}
+      onClick={() =>
+        setSelectedSong({
+          currentRec: currentRec,
+          selectedSong: index,
+        })
+      }
+      className="flex px-2 py-1 flex-row gap-2 group hover:bg-accent group"
+    >
+      <img
+        src={song.song_cover}
+        className="w-12 rounded-[2px] pointer-events-none"
+      />
+      <div className="w-56 pointer-events-none">
+        <p className="overflow-ellipsis">{song.song_name}</p>
+        <p className="overflow-ellipsis">{song.song_author}</p>
+      </div>
+      {song.Ratings[0] && (
+        <Badge className="h-min my-auto">
+          {ratingLabels[song.Ratings[0].rating]}
+        </Badge>
+      )}
+
+      <Button
+        className="m-auto opacity-0 group-hover:opacity-100"
+        variant={"menu"}
+      >
+        <Ellipsis />
+      </Button>
+    </div>
+  ));
+}
+
+type DisplayAreaFn = {
+  songData: Record<string, SongType[]>;
+  currentRec: string;
+  selectedSong: selectedSongType;
+};
+function DisplayArea({ songData, currentRec, selectedSong }: DisplayAreaFn) {
+  let rating = "";
+
+  if (selectedSong.selectedSong !== null) {
+    rating =
+      ratingLabels[
+        songData[currentRec][selectedSong.selectedSong].Ratings[0]?.rating
+      ] ?? "";
+  }
+  if (
+    selectedSong.currentRec === currentRec &&
+    selectedSong.selectedSong !== null
+  ) {
+    return (
+      <div className="col-start-2 pl-[10px] p-[20px] gap-[20px] grid grid-rows-[216px_2.25rem_216px]">
+        <div className="w-full bg-[#101314] p-[20px] rounded-md outline-1 flex flex-row gap-[20px] row-start-1">
+          <div className="w-44 h-44 rounded-sm overflow-hidden">
+            <img
+              src={songData[currentRec][selectedSong.selectedSong].song_cover}
+            ></img>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">
+              {songData[currentRec][selectedSong.selectedSong].song_name}
+            </h1>
+            <h1 className="text-xl font-normal">
+              {songData[currentRec][selectedSong.selectedSong].song_author}
+            </h1>
+          </div>
+        </div>
+        <div className="row-start-2 flex justify-between">
+          {rating !== "" ? (
+            <Select value={rating}>
+              <SelectTrigger className="w-[180px] duration-0">
+                <SelectValue placeholder="Select a Rating" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Ratings</SelectLabel>
+                  <SelectItem value="S">S - Instant Add</SelectItem>
+                  <SelectItem value="A">A - Loved It</SelectItem>
+                  <SelectItem value="B">B - Solid</SelectItem>
+                  <SelectItem value="C">C - It's Fine</SelectItem>
+                  <SelectItem value="D">D - Not My Thing</SelectItem>
+                  <SelectItem value="F">F - Skip</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          ) : (
+            <Select>
+              <SelectTrigger className="w-[180px] duration-0">
+                <SelectValue placeholder="Select a Rating" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Ratings</SelectLabel>
+                  <SelectItem value="S">S - Instant Add</SelectItem>
+                  <SelectItem value="A">A - Loved It</SelectItem>
+                  <SelectItem value="B">B - Solid</SelectItem>
+                  <SelectItem value="C">C - It's Fine</SelectItem>
+                  <SelectItem value="D">D - Not My Thing</SelectItem>
+                  <SelectItem value="F">F - Skip</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          )}
+
+          <Button className="w-28 font-bold text-base">Send</Button>
+        </div>
+        <Textarea placeholder="Add a comment (optional)" className="h-4" />
+      </div>
+    );
+  }
 }
 
 export type { SongType };
