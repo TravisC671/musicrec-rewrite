@@ -9,26 +9,25 @@ import {
 } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Rating, Recommendation } from "./types";
 
-type RecsType = {
+type RecommendationsFn = {
   userId: string;
-  currentRec: string;
-  setCurrentRec: Dispatch<SetStateAction<string>>;
+  recommendations: Recommendation[];
+  setRecommendations: Dispatch<SetStateAction<Recommendation[]>>;
+  currentRec: number | null;
+  setCurrentRec: Dispatch<SetStateAction<number | null>>;
+  setSelectedSongId: Dispatch<SetStateAction<number | null>>;
 };
 
-type RecordTbType = {
-  created_at: string;
-  id: number;
-  user_1_clerk_id: string;
-  user_1_pfp: string;
-  user_1_username: string;
-  user_2_clerk_id: string;
-  user_2_pfp: string;
-  user_2_username: string;
-};
-export default function Recs({ userId, currentRec, setCurrentRec }: RecsType) {
-  const [recs, setRecs] = useState<RecordTbType[]>([]);
-
+export default function Recommendations({
+  userId,
+  recommendations,
+  setRecommendations,
+  currentRec,
+  setCurrentRec,
+  setSelectedSongId,
+}: RecommendationsFn) {
   useEffect(() => {
     const fetchRecs = async () => {
       const { data, error } = await supabase
@@ -39,7 +38,7 @@ export default function Recs({ userId, currentRec, setCurrentRec }: RecsType) {
       console.log(data);
       //kinda jank
       if (data) {
-        setRecs(data as RecordTbType[]);
+        setRecommendations(data as Recommendation[]);
       }
     };
 
@@ -48,7 +47,7 @@ export default function Recs({ userId, currentRec, setCurrentRec }: RecsType) {
 
   return (
     <div className="w-full h-[71px] flex">
-      {recs.map((rec) => (
+      {recommendations.map((rec) => (
         <RecBtn
           key={rec.id}
           recId={rec.id}
@@ -58,8 +57,9 @@ export default function Recs({ userId, currentRec, setCurrentRec }: RecsType) {
               ? rec.user_2_username
               : rec.user_1_username
           }
-          isActive={rec.id.toString() == currentRec}
+          isActive={rec.id == currentRec}
           setCurrentRec={setCurrentRec}
+          setSelectedSongId={setSelectedSongId}
         />
       ))}
       <CreateRec />
@@ -72,7 +72,8 @@ type RecBtnType = {
   img: string;
   user2Name: string; //user2 here is the other user
   isActive: boolean;
-  setCurrentRec: Dispatch<SetStateAction<string>>;
+  setCurrentRec: Dispatch<SetStateAction<number | null>>;
+  setSelectedSongId: Dispatch<SetStateAction<number | null>>;
 };
 function RecBtn({
   recId,
@@ -80,10 +81,14 @@ function RecBtn({
   user2Name,
   isActive,
   setCurrentRec,
+  setSelectedSongId,
 }: RecBtnType) {
   return (
     <Button
-      onClick={() => setCurrentRec(recId.toString())}
+      onClick={() => {
+        setSelectedSongId(null);
+        setCurrentRec(recId);
+      }}
       className={`h-[72px] ${
         isActive
           ? "w-52 border-1 border-[#2F3B37] bg-[#101314] hover:bg-[#161a1b]"
