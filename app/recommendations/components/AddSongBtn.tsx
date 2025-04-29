@@ -6,10 +6,15 @@ import { Song } from "./types";
 
 type AddSongType = {
   currentRec: number | null;
+  userId: string;
   setSongsByRec: Dispatch<SetStateAction<Record<number, Song[]>>>;
 };
 
-export default function AddSong({ currentRec, setSongsByRec }: AddSongType) {
+export default function AddSong({
+  currentRec,
+  userId,
+  setSongsByRec,
+}: AddSongType) {
   const [isActive, setActive] = useState(true);
 
   const urlRef = useRef<HTMLInputElement | null>(null);
@@ -36,7 +41,7 @@ export default function AddSong({ currentRec, setSongsByRec }: AddSongType) {
         id: Date.now(), //cause of key prop
         is_rated: false,
         recommendation_id: currentRec,
-        sender_clerk_user_id: "",
+        sender_clerk_user_id: userId,
         song_author: data.artist,
         song_cover: data.cover,
         song_name: data.name,

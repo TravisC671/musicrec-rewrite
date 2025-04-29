@@ -31,6 +31,7 @@ export default function Recommendations({
   useEffect(() => {
     const fetchRecs = async () => {
       const { data, error } = await supabase
+        //TODO make it query users for username and pfp
         .from("Recommendations")
         .select()
         .or(`user_1_clerk_id.eq.${userId},user_2_clerk_id.eq.${userId}`);
