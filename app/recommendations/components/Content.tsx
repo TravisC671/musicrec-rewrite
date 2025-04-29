@@ -36,7 +36,6 @@ export default function Content({ userId }: { userId: string }) {
   useEffect(() => {
     const fetchSongs = async () => {
       if (!currentRec || songsByRec[currentRec]) return;
-      console.log("fetching");
       const {
         data,
         error,
@@ -94,7 +93,6 @@ export default function Content({ userId }: { userId: string }) {
             is_rated: Boolean(song.is_rated),
           };
         });
-        console.log("setting songs");
         setSongsByRec((prev) => ({ ...prev, [currentRec]: songs }));
       }
     };
@@ -131,12 +129,14 @@ export default function Content({ userId }: { userId: string }) {
             </div>
           </ScrollArea>
         </div>
-        <DisplayArea
-          songsByRec={songsByRec}
-          ratingsBySongId={ratingsBySongId}
-          currentRec={currentRec}
-          selectedSongId={selectedSongId}
-        />
+        {selectedSongId && (
+          <DisplayArea
+            songsByRec={songsByRec}
+            ratingsBySongId={ratingsBySongId}
+            currentRec={currentRec}
+            selectedSongId={selectedSongId}
+          />
+        )}
       </div>
     </main>
   );
@@ -155,17 +155,12 @@ function Songs({
   ratingsBySongId,
 }: SongsFn) {
   if (currentRec && songsByRec[currentRec]) {
-    console.log(songsByRec[currentRec]);
     return songsByRec[currentRec].map((song, index) => {
       const rating = ratingsBySongId[song.id];
-      console.log(song.id);
       return (
         <div
           key={`song${song.id}`}
-          onClick={() => {
-            setSelectedSongId(song.id);
-            console.log("selected song " + song.id);
-          }}
+          onClick={() => setSelectedSongId(song.id)}
           className="flex px-2 py-1 flex-row gap-2 group hover:bg-accent group"
         >
           <img
@@ -198,7 +193,7 @@ type DisplayAreaFn = {
   songsByRec: Record<number, Song[]>;
   ratingsBySongId: Record<number, Rating | null>;
   currentRec: number | null;
-  selectedSongId: number | null;
+  selectedSongId: number;
 };
 function DisplayArea({
   songsByRec,
@@ -206,54 +201,108 @@ function DisplayArea({
   currentRec,
   selectedSongId,
 }: DisplayAreaFn) {
-  if (currentRec && selectedSongId) {
-    let rating = ratingsBySongId[selectedSongId];
-
-    let selectedSong = songsByRec[currentRec].find(
-      (song) => song.id === selectedSongId
-    );
-    if (selectedSong) {
-      return (
-        <div className="col-start-2 pl-[10px] p-[20px] gap-[20px] grid grid-rows-[216px_2.25rem_216px]">
-          <div className="w-full bg-[#101314] p-[20px] rounded-md outline-1 grid grid-cols-[11rem_1fr] row-start-1 gap-[20px]">
-            <div className="w-44 h-44 rounded-sm overflow-hidden col-start-1">
-              <img src={selectedSong.song_cover}></img>
-            </div>
-            <div className="max-w-full overflow-hidden col-start-2">
-              <h1 className="text-2xl font-bold overflow-hidden text-ellipsis whitespace-nowrap">
-                {selectedSong.song_name}
-              </h1>
-              <h1 className="text-xl font-normal overflow-hidden text-ellipsis whitespace-nowrap">
-                {selectedSong.song_author}
-              </h1>
-            </div>
-          </div>
-          <div className="row-start-2 flex justify-between">
-            <Select
-              defaultValue={rating ? ratingLabels[rating.rating] : undefined}
-            >
-              <SelectTrigger className="w-[180px] duration-0">
-                <SelectValue placeholder="Select a Rating" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Ratings</SelectLabel>
-                  <SelectItem value="S">S - Instant Add</SelectItem>
-                  <SelectItem value="A">A - Loved It</SelectItem>
-                  <SelectItem value="B">B - Solid</SelectItem>
-                  <SelectItem value="C">C - It's Fine</SelectItem>
-                  <SelectItem value="D">D - Not My Thing</SelectItem>
-                  <SelectItem value="F">F - Skip</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <Button className="w-28 font-bold text-base">Send</Button>
-          </div>
-          <Textarea placeholder="Add a comment (optional)" className="h-4" />
-        </div>
-      );
-    }
+  if (!currentRec) {
+    return null;
   }
+
+  const selectedSong = songsByRec[currentRec]?.find(
+    (song) => song.id === selectedSongId
+  );
+
+  if (!selectedSong) {
+    return null;
+  }
+
+  let rating = "";
+  let comment = "";
+
+  if (ratingsBySongId[selectedSongId]) {
+    rating = ratingLabels[ratingsBySongId[selectedSongId].rating];
+    comment = ratingsBySongId[selectedSongId].comment;
+  }
+
+  return (
+    <div className="col-start-2 pl-[10px] p-[20px] gap-[20px] grid grid-rows-[216px_2.25rem_216px]">
+      {/* Song Info */}
+      <div className="w-full bg-[#101314] p-[20px] rounded-md outline-1 grid grid-cols-[11rem_1fr] row-start-1 gap-[20px]">
+        <div className="w-44 h-44 rounded-sm overflow-hidden col-start-1">
+          <img src={selectedSong.song_cover} alt={selectedSong.song_name} />
+        </div>
+        <div className="max-w-full overflow-hidden col-start-2">
+          <h1 className="text-2xl font-bold overflow-hidden text-ellipsis whitespace-nowrap">
+            {selectedSong.song_name}
+          </h1>
+          <h1 className="text-xl font-normal overflow-hidden text-ellipsis whitespace-nowrap">
+            {selectedSong.song_author}
+          </h1>
+        </div>
+      </div>
+      <RateArea
+        isDisabled={ratingsBySongId[selectedSongId] !== null}
+        initialRating={rating}
+        initialComment={comment}
+      />
+    </div>
+  );
 }
 
+type RateAreaFn = {
+  isDisabled: boolean;
+  initialRating: string;
+  initialComment: string;
+};
+function RateArea({ isDisabled, initialRating, initialComment }: RateAreaFn) {
+  const [canEdit, setCanEdit] = useState(!isDisabled);
+  const [rating, setRating] = useState(initialRating);
+  const [comment, setComment] = useState(initialComment);
+
+  const handleBtn = () => {
+    if (!canEdit) {
+      setCanEdit(true);
+    } else {
+      setCanEdit(false);
+    }
+  };
+
+  useEffect(() => {
+    setCanEdit(!isDisabled);
+    setRating(initialRating);
+    setComment(initialComment);
+  }, [isDisabled, initialRating, initialComment]);
+
+  return (
+    <>
+      <div className="row-start-2 flex justify-between">
+        <Select disabled={!canEdit} value={rating} onValueChange={setRating}>
+          <SelectTrigger className="w-[180px] duration-0">
+            <SelectValue placeholder="Select a Rating" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Ratings</SelectLabel>
+              <SelectItem value="S">S - Instant Add</SelectItem>
+              <SelectItem value="A">A - Loved It</SelectItem>
+              <SelectItem value="B">B - Solid</SelectItem>
+              <SelectItem value="C">C - It's Fine</SelectItem>
+              <SelectItem value="D">D - Not My Thing</SelectItem>
+              <SelectItem value="F">F - Skip</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+
+        <Button className="w-28 font-bold text-base" onClick={handleBtn}>
+          {!canEdit ? "Edit" : "Send"}
+        </Button>
+      </div>
+
+      <Textarea
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        disabled={!canEdit}
+        placeholder="Add a comment (optional)"
+        className="h-4"
+      />
+    </>
+  );
+}
 export type { Recommendation };
