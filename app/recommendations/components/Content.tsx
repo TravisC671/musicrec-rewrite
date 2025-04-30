@@ -14,11 +14,17 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { ratingLabels } from "@/lib/constants";
+import { isFriend, ratingLabels } from "@/lib/constants";
 import { PostgrestError } from "@supabase/supabase-js";
 import { Rating, Recommendation, Song, SupaSongData } from "./types";
 import Recommendations from "./Recommendations";
 import { useSupabase } from "@/lib/supabase-provider";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function Content({ userId }: { userId: string }) {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
@@ -151,6 +157,7 @@ export default function Content({ userId }: { userId: string }) {
           </div>
         )}
       </div>
+      {isFriend(userId) && <Fren />}
     </main>
   );
 }
@@ -406,4 +413,73 @@ function RateArea({
     </>
   );
 }
+
+function Fren() {
+  const [open, setOpen] = useState(true);
+  const [curDialogue, setCurDialogue] = useState(-1);
+  const [animate, setAnimate] = useState(false);
+
+  const dialogue = [
+    "Logging into mainframe",
+    "Booting up zesty vision",
+    "Matcha Reactor",
+    "ON",
+    "xiao hong",
+    "mother frickin",
+    "shu",
+  ];
+  const times = [1666, 2000, 500, 500, 500, 500, 500];
+
+  const audio = new Audio(
+    "https://gs261yrzoi.ufs.sh/f/pra1ARSHOHiLPjYL1DF3aHV7gsKXE8Onb9ferM0YdixDmtlA"
+  );
+
+  const onClick = () => {
+    setCurDialogue(0);
+    audio.play();
+  };
+
+  useEffect(() => {
+    if (curDialogue != -1 && curDialogue != 7) {
+      const timer = setTimeout(() => {
+        setCurDialogue((prev) => prev + 1);
+      }, times[curDialogue]);
+    }
+    if (curDialogue === 7) {
+      setOpen(false);
+    }
+  }, [curDialogue]);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTitle className="hidden">macha</DialogTitle>
+      <DialogContent
+        title="macha"
+        className={`${curDialogue !== -1 && "w-[1600px] h-[300px]"}`}
+      >
+        <div
+          className={`flex flex-col items-center justify-center h-full w-full text-center `}
+        >
+          {curDialogue === -1 ? (
+            <>
+              <img
+                src={
+                  "https://gs261yrzoi.ufs.sh/f/pra1ARSHOHiLyer3ZH4AJBFlChUvX6sKmkq7uIdnWV4LYPRc"
+                }
+              />
+              <Button className="m-3" onClick={onClick}>
+                Start macha reactor
+              </Button>
+            </>
+          ) : (
+            <h1 className={` text-7xl ${animate ? "subtle-shake" : ""}}`}>
+              {dialogue[curDialogue]}
+            </h1>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export type { Recommendation };
