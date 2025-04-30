@@ -1,5 +1,4 @@
 "use client";
-import supabase from "@/lib/supabaseClient";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +9,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Rating, Recommendation } from "./types";
+import { useSupabase } from "@/lib/supabase-provider";
 
 type RecommendationsFn = {
   userId: string;
@@ -28,8 +28,12 @@ export default function Recommendations({
   setCurrentRec,
   setSelectedSongId,
 }: RecommendationsFn) {
+  const { supabase } = useSupabase();
+
   useEffect(() => {
     const fetchRecs = async () => {
+      if (!supabase) return;
+
       const { data, error } = await supabase
         //TODO make it query users for username and pfp
         .from("Recommendations")

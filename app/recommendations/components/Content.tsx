@@ -2,7 +2,6 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import AddSong from "./AddSongBtn";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
-import supabase from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import SRToggle from "./SRToggle";
 import {
@@ -21,10 +20,13 @@ import { ratingLabels } from "@/lib/constants";
 import { PostgrestError } from "@supabase/supabase-js";
 import { Rating, Recommendation, Song, SupaSongData } from "./types";
 import Recommendations from "./Recommendations";
+import { useSupabase } from "@/lib/supabase-provider";
 
 export default function Content({ userId }: { userId: string }) {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [currentRec, setCurrentRec] = useState<number | null>(null);
+
+  const { supabase } = useSupabase();
 
   const [songsByRec, setSongsByRec] = useState<Record<number, Song[]>>({});
   const [selectedSongId, setSelectedSongId] = useState<number | null>(null);
@@ -35,7 +37,7 @@ export default function Content({ userId }: { userId: string }) {
 
   useEffect(() => {
     const fetchSongs = async () => {
-      if (!currentRec || songsByRec[currentRec]) return;
+      if (!currentRec || songsByRec[currentRec] || !supabase) return;
       const {
         data,
         error,
@@ -314,11 +316,13 @@ function RateArea({
   const [rating, setRating] = useState(initialRating);
   const [comment, setComment] = useState(initialComment);
 
+  const { supabase } = useSupabase();
+
   const handleBtn = async () => {
     if (!canEdit) {
       setCanEdit(true);
     } else {
-      if (!ratingExists) {
+      if (!ratingExists && supabase) {
         let numRating = ratingLabels.indexOf(rating);
         //later use upsert but until then we will not allow the user to edit.
         const { data, error } = await supabase.from("Ratings").insert([

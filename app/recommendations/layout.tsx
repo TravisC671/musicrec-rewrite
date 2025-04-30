@@ -9,6 +9,7 @@ import {
 } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
+import SupabaseProvider from "@/lib/supabase-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,5 +31,5 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return children;
+  return <SupabaseProvider>{children}</SupabaseProvider>;
 }
