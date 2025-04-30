@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { isFriend, ratingLabels } from "@/lib/constants";
+import { ratingLabels } from "@/lib/constants";
 import { PostgrestError } from "@supabase/supabase-js";
 import { Rating, Recommendation, Song, SupaSongData } from "./types";
 import Recommendations from "./Recommendations";
@@ -101,7 +101,6 @@ export default function Content({ userId }: { userId: string }) {
     fetchSongs();
   }, [currentRec]);
 
-  console.log(isFriend(userId));
   return (
     <main className="flex flex-col h-full w-full max-w-6xl row-start-1 items-center sm:items-start ">
       <Recommendations
