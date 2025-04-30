@@ -3,7 +3,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import AddSong from "./AddSongBtn";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import SRToggle from "./SRToggle";
 import {
   Select,
   SelectContent,
@@ -14,7 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import Ellipsis from "@/components/icons/ellipsis";
 import { Badge } from "@/components/ui/badge";
 import { ratingLabels } from "@/lib/constants";
 import { PostgrestError } from "@supabase/supabase-js";
