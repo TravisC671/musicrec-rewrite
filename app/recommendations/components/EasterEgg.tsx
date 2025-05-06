@@ -86,7 +86,7 @@ function Fren({ initOpen }: { initOpen: boolean }) {
                 }
               />
               <Button className="m-3" onClick={onClick}>
-                Start martcha reactor
+                Start matcha reactor
               </Button>
             </>
           ) : (
