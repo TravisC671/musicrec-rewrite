@@ -270,13 +270,24 @@ function DisplayArea({
         <div className="w-44 h-44 rounded-sm overflow-hidden col-start-1">
           <img src={selectedSong.song_cover} alt={selectedSong.song_name} />
         </div>
-        <div className="max-w-full overflow-hidden col-start-2">
-          <h1 className="text-2xl font-bold overflow-hidden text-ellipsis whitespace-nowrap">
-            {selectedSong.song_name}
-          </h1>
-          <h1 className="text-xl font-normal overflow-hidden text-ellipsis whitespace-nowrap">
-            {selectedSong.song_author}
-          </h1>
+        <div className="max-w-full overflow-hidden col-start-2 flex flex-col justify-between">
+          <div>
+            <h1 className="text-2xl font-bold overflow-hidden text-ellipsis whitespace-nowrap">
+              {selectedSong.song_name}
+            </h1>
+            <h1 className="text-xl font-normal overflow-hidden text-ellipsis whitespace-nowrap">
+              {selectedSong.song_author}
+            </h1>
+          </div>
+          <a href={selectedSong.spotify_url} target="_blank">
+            <Button className="bg-[#1ed760] hover:bg-[#19b350] font-bold">
+              <img
+                className="w-5 h-5"
+                src="https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Primary_Logo_RGB_Black.png"
+              ></img>
+              Open in Spotify
+            </Button>
+          </a>
         </div>
       </div>
       <RateArea
