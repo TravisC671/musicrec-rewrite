@@ -4,7 +4,6 @@ import Content from "./components/Content";
 
 export default async function Home() {
   const { userId, redirectToSignIn } = await auth();
-  if (!userId) return redirectToSignIn();
 
   return (
     <div className="grid grid-rows-[1fr_20px] items-center justify-items-center flex-[1]  gap-4 sm:p-20 sm:pb-4 sm:pt-0 font-[family-name:var(--font-geist-sans)]">
