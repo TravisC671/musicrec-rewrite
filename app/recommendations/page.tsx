@@ -18,6 +18,7 @@ export default async function Home() {
   );
 }
 
+
 function Footer() {
   return (
     <footer className="row-start-2 flex gap-[24px] flex-wrap items-center justify-center">
