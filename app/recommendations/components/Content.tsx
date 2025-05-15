@@ -20,6 +20,7 @@ import { Rating, Recommendation, Song, SupaSongData } from "./types";
 import Recommendations from "./Recommendations";
 import { useSupabase } from "@/lib/supabase-provider";
 import MatchaEasterEgg from "./EasterEgg";
+import { Separator } from "@/components/ui/separator";
 
 export default function Content({ userId }: { userId: string }) {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
@@ -102,7 +103,7 @@ export default function Content({ userId }: { userId: string }) {
   }, [currentRec]);
 
   return (
-    <main className="flex flex-col h-full w-full max-w-6xl row-start-1 items-center sm:items-start ">
+    <main className="h-full w-full max-w-6xl row-start-1 items-center sm:items-start border-1 rounded-lg outline-1 outline-[#2F3B37] bg-black ml-[1px] grid grid-cols-[225px_1px_1fr]">
       <Recommendations
         userId={userId}
         recommendations={recommendations}
@@ -111,7 +112,8 @@ export default function Content({ userId }: { userId: string }) {
         setCurrentRec={setCurrentRec}
         setSelectedSongId={setSelectedSongId}
       />
-      <div className="w-full h-full border-1 rounded-lg rounded-tl-none outline-1 outline-[#2F3B37] bg-black ml-[1px] grid grid-cols-[1fr_1fr]">
+      <Separator orientation="vertical" />
+      <div className="w-full h-full rounded-tl-none grid grid-cols-[1fr_1fr]">
         {currentRec ? (
           <>
             <div className="grid grid-rows-[76px_1fr] col-start-1">

@@ -51,7 +51,7 @@ export default function Recommendations({
   }, []);
 
   return (
-    <div className="w-full h-[71px] flex">
+    <div className="w-full h-[71px] flex flex-col">
       {recommendations.map((rec) => (
         <RecBtn
           key={rec.id}
@@ -94,25 +94,23 @@ function RecBtn({
         setSelectedSongId(null);
         setCurrentRec(recId);
       }}
-      className={`h-[72px] ${
+      className={`h-[52px] ${
         isActive
-          ? "w-52 border-1 border-[#2F3B37] bg-[#101314] hover:bg-[#161a1b]"
-          : "w-[72px] border-0"
-      } transition-all duration-300 rounded-b-none flex gap-2 justify-baseline cursor-pointer p-2`}
+          ? " bg-[#161a1c] "
+          : "" //!figure out why hover wont work on laptop 
+      } w-full transition-all hover:bg-[#161a1b] duration-300 flex gap-2 justify-baseline cursor-pointer p-2 rounded-none`}
       variant={"ghost"}
     >
-      <div className="h-[55px] w-[55px] overflow-hidden rounded-[4px] shrink-0">
+      <div className="h-[35px] w-[35px] overflow-hidden shrink-0">
         <img
           src={img}
           alt={`${user2Name}'s pfp`}
-          className="object-cover h-full w-full"
+          className="object-cover h-full w-full rounded-xs"
         />
       </div>
 
       <h1
-        className={`text-xl font-bold capitalize transition-all duration-300 overflow-hidden ${
-          isActive ? "opacity-100 max-w-[200px] ml-2" : "opacity-0 max-w-0"
-        }`}
+        className={`${isActive ? "text-white" : "text-gray-400"} text-lg capitalize transition-all duration-300 overflow-hidden opacity-100 max-w-[200px] ml-2 `}
       >
         {user2Name}
       </h1>
@@ -148,9 +146,11 @@ function CreateRec() {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="cursor-pointer h-[55px] w-[55px] m-2 text-2xl rounded-sm"
+          className="cursor-pointer h-11 w-[calc(100% - 16px)] m-2 text-2xl rounded-sm p-0"
         >
-          +
+          <h1 className="text-base ">
+            Create Recommendation
+          </h1>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">
