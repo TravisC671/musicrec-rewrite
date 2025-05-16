@@ -20,7 +20,6 @@ export default function MatchaEasterEgg() {
           console.log("done");
           setDone(true);
         }
-        console.log(newTyped);
         return newTyped;
       });
     };

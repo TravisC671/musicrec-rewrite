@@ -19,6 +19,12 @@ export default function AddSong({
 
   const urlRef = useRef<HTMLInputElement | null>(null);
 
+  const handleKeyDown = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      await fetchSong()
+    }
+  };
+
   const fetchSong = async () => {
     if (urlRef.current == null) {
       return;
@@ -65,13 +71,13 @@ export default function AddSong({
       <>
         <Button
           onClick={() => setActive(!isActive)}
-          className={`${
-            !isActive ? "w-40" : "w-24"
-          } cursor-pointer transition-all duration-300 text-base font-bold ease-in-out overflow-hidden`}
+          className={`${!isActive ? "w-40" : "w-24"
+            } cursor-pointer transition-all duration-300 text-base font-bold ease-in-out overflow-hidden bg-gradient-to-br from-[#1DCD9F] to-[#7BFF9E]`}
         >
           {!isActive ? "Add Song" : "Cancel"}
         </Button>
         <Input
+          onKeyDown={handleKeyDown}
           ref={urlRef}
           placeholder="Paste Spotify Url"
           className={`
@@ -84,7 +90,7 @@ export default function AddSong({
           onClick={fetchSong}
           className={`
             transition-all duration-300 font-bold text-base ease-in-out bg-primary
-              px-3 py-1 w-fit 
+              px-3 py-1 w-fit bg-gradient-to-br from-[#FFE666] to-[#ff7b7b]
             ${isActive ? "opacity-100" : "opacity-0"} overflow-hidden
           `}
         >

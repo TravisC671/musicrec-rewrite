@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Rating, Recommendation } from "./types";
 import { useSupabase } from "@/lib/supabase-provider";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type RecommendationsFn = {
   userId: string;
@@ -29,6 +31,7 @@ export default function Recommendations({
   setSelectedSongId,
 }: RecommendationsFn) {
   const { supabase } = useSupabase();
+  const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchRecs = async () => {
@@ -40,7 +43,8 @@ export default function Recommendations({
         .select()
         .or(`user_1_clerk_id.eq.${userId},user_2_clerk_id.eq.${userId}`);
 
-      console.log(data);
+      console.log();
+      setLoading(false)
       //kinda jank
       if (data) {
         setRecommendations(data as Recommendation[]);
@@ -52,7 +56,10 @@ export default function Recommendations({
 
   return (
     <div className="w-full h-[71px] flex flex-col">
-      {recommendations.map((rec) => (
+      <h1 className="p-2">Recommendations</h1>
+      <Separator />
+      { isLoading ? <RecSkel /> :
+      recommendations.map((rec) => (
         <RecBtn
           key={rec.id}
           recId={rec.id}
@@ -94,11 +101,11 @@ function RecBtn({
         setSelectedSongId(null);
         setCurrentRec(recId);
       }}
-      className={`h-[52px] ${
+      className={`h-[43.5px] ${
         isActive
           ? " bg-[#161a1c] "
           : "" //!figure out why hover wont work on laptop 
-      } w-full transition-all hover:bg-[#161a1b] duration-300 flex gap-2 justify-baseline cursor-pointer p-2 rounded-none`}
+      } w-full transition-all hover:bg-[#161a1b] duration-300 flex gap-2 justify-baseline cursor-pointer p-2 py-0 rounded-none`}
       variant={"ghost"}
     >
       <div className="h-[35px] w-[35px] overflow-hidden shrink-0">
@@ -118,10 +125,30 @@ function RecBtn({
   );
 }
 
+function RecSkel () {
+
+  return (
+        <div
+      className={`h-[52px] w-full transition-all hover:bg-[#161a1b] duration-300 flex gap-2 justify-baseline cursor-pointer p-2 rounded-none`}
+    >
+      <Skeleton className="h-[35px] w-[35px] rounded-xs" />
+
+      <Skeleton className="h-[28px] w-[calc(100% - 8px)] ml-2" />
+      {/* <h1
+        className={`${isActive ? "text-white" : "text-gray-400"} text-lg capitalize transition-all duration-300 overflow-hidden opacity-100 max-w-[200px] ml-2 `}
+      >
+      </h1> */}
+    </div>
+  )
+}
+
+
 function CreateRec() {
+  const [isActive, setActive] = useState(true);
   const createUserInpt = useRef<HTMLInputElement | null>(null);
 
   const createRecommendation = async () => {
+    setActive(false)
     //check if empty
     if (createUserInpt.current != null) {
       console.log(createUserInpt.current.value);
@@ -135,10 +162,16 @@ function CreateRec() {
         }),
       });
 
-      console.log(response);
+      console.log(response.status);
+      if (response.status == 200) {
+        window.location.reload()
+      } else {
+        alert("There was an error with that username: " + response.status)
+      }
     } else {
       console.error("input is null");
     }
+    setActive(true)
   };
 
   return (
@@ -165,7 +198,9 @@ function CreateRec() {
                 className="col-span-2 h-8"
               />
             </div>
-            <Button onClick={createRecommendation}>Create!</Button>
+            <Button
+            className={`${isActive ? "bg-gradient-to-br from-[#1DCD9F] to-[#7BFF9E]" : "bg-gradient-to-br from-[#161721] to-[#000]"} font-bold`}
+            onClick={createRecommendation}>Create!</Button>
           </div>
         </div>
       </PopoverContent>
