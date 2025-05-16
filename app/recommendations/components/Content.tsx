@@ -14,13 +14,14 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { ratingLabels } from "@/lib/constants";
+import { ratingClasses, ratingLabels } from "@/lib/constants";
 import { PostgrestError } from "@supabase/supabase-js";
 import { Rating, Recommendation, Song, SupaSongData } from "./types";
 import Recommendations from "./Recommendations";
 import { useSupabase } from "@/lib/supabase-provider";
 import MatchaEasterEgg from "./EasterEgg";
 import { Separator } from "@/components/ui/separator";
+import { spotifyUrlToUri } from "@/lib/utils";
 
 export default function Content({ userId }: { userId: string }) {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
@@ -124,7 +125,7 @@ export default function Content({ userId }: { userId: string }) {
                   setSongsByRec={setSongsByRec}
                 />
               </div>
-              <ScrollArea className="row-start-2 m-2 h-[calc(100vh-301px)] bg-[#101314] w-[calc(100%-30px)] mt-0 mb-2 rounded-md outline-1 ml-[20px]">
+              <ScrollArea className="row-start-2 m-2 h-[calc(100vh-230px)] bg-black w-[calc(100%-30px)] mt-0 mb-2 rounded-md outline-1 ml-[20px]">
                 <div className="flex flex-col py-1">
                   <Songs
                     songsByRec={songsByRec}
@@ -176,13 +177,21 @@ function Songs({
   ratingsBySongId,
 }: SongsFn) {
   if (!currentRec || !songsByRec[currentRec]) return null;
-
+  
   const selRec = recommendations.find((rec) => rec.id === currentRec);
-
+  
   if (!selRec) return null;
 
   return songsByRec[currentRec].map((song, index) => {
     const rating = ratingsBySongId[song.id];
+
+    
+    let ratingColor = ""
+
+    if (rating) {
+      ratingColor = ratingClasses[rating.rating]
+    }
+
     let senderPFP = "";
     if (userId === song.sender_clerk_user_id) {
       senderPFP =
@@ -206,12 +215,12 @@ function Songs({
           className="w-12 rounded-[2px] pointer-events-none"
         />
         <div className="w-56 pointer-events-none">
-          <p className="overflow-ellipsis">{song.song_name}</p>
-          <p className="overflow-ellipsis">{song.song_author}</p>
+          <p className="truncate">{song.song_name}</p>
+          <p className="truncate">{song.song_author}</p>
         </div>
         <div className="my-auto">
           {rating && (
-            <Badge className="h-min my-auto">
+            <Badge className={`h-min my-auto bg-gradient-to-r ${ratingColor} bg-[length:110%_110%]`}>
               {ratingLabels[rating.rating]}
             </Badge>
           )}
@@ -265,6 +274,9 @@ function DisplayArea({
     comment = ratingsBySongId[selectedSongId].comment;
   }
 
+  //spotify:track:1KkwyjUymiA7ryzwH1YO9B
+  let spotifyURI = spotifyUrlToUri(selectedSong.spotify_url);
+
   return (
     <div className="col-start-2 pl-[10px] p-[20px] gap-[20px] grid grid-rows-[216px_2.25rem_216px]">
       {/* Song Info */}
@@ -281,8 +293,8 @@ function DisplayArea({
               {selectedSong.song_author}
             </h1>
           </div>
-          <a href={selectedSong.spotify_url} target="_blank">
-            <Button className="bg-[#1ed760] hover:bg-[#19b350] font-bold">
+          <a href={spotifyURI}>
+            <Button className="bg-gradient-to-br from-[#1ED760] to-[#26D192] hover:bg-[#19b350] font-bold px-2">
               <img
                 className="w-5 h-5"
                 src="https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Primary_Logo_RGB_Black.png"
@@ -405,7 +417,7 @@ function RateArea({
         </Select>
 
         {!isSender && (
-          <Button className="w-28 font-bold text-base" onClick={handleBtn}>
+          <Button className={`w-28 font-bold text-base bg-gradient-to-br ${canEdit ? "from-[#1DCD9F] to-[#7BFF9E]": "from-[#FFE666] to-[#ff7b7b]"}`} onClick={handleBtn}>
             {!canEdit ? "Edit" : "Send"}
           </Button>
         )}

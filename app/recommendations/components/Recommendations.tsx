@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Rating, Recommendation } from "./types";
 import { useSupabase } from "@/lib/supabase-provider";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type RecommendationsFn = {
   userId: string;
@@ -29,6 +31,7 @@ export default function Recommendations({
   setSelectedSongId,
 }: RecommendationsFn) {
   const { supabase } = useSupabase();
+  const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchRecs = async () => {
@@ -40,7 +43,8 @@ export default function Recommendations({
         .select()
         .or(`user_1_clerk_id.eq.${userId},user_2_clerk_id.eq.${userId}`);
 
-      console.log(data);
+
+      setLoading(false)
       //kinda jank
       if (data) {
         setRecommendations(data as Recommendation[]);
@@ -52,21 +56,24 @@ export default function Recommendations({
 
   return (
     <div className="w-full h-[71px] flex flex-col">
-      {recommendations.map((rec) => (
-        <RecBtn
-          key={rec.id}
-          recId={rec.id}
-          img={userId == rec.user_1_clerk_id ? rec.user_2_pfp : rec.user_1_pfp}
-          user2Name={
-            userId == rec.user_1_clerk_id
-              ? rec.user_2_username
-              : rec.user_1_username
-          }
-          isActive={rec.id == currentRec}
-          setCurrentRec={setCurrentRec}
-          setSelectedSongId={setSelectedSongId}
-        />
-      ))}
+      <h1 className="p-2">Recommendations</h1>
+      <Separator />
+      {isLoading ? <RecSkel /> :
+        recommendations.map((rec) => (
+          <RecBtn
+            key={rec.id}
+            recId={rec.id}
+            img={userId == rec.user_1_clerk_id ? rec.user_2_pfp : rec.user_1_pfp}
+            user2Name={
+              userId == rec.user_1_clerk_id
+                ? rec.user_2_username
+                : rec.user_1_username
+            }
+            isActive={rec.id == currentRec}
+            setCurrentRec={setCurrentRec}
+            setSelectedSongId={setSelectedSongId}
+          />
+        ))}
       <CreateRec />
     </div>
   );
@@ -94,11 +101,10 @@ function RecBtn({
         setSelectedSongId(null);
         setCurrentRec(recId);
       }}
-      className={`h-[52px] ${
-        isActive
+      className={`h-[43.5px] ${isActive
           ? " bg-[#161a1c] "
           : "" //!figure out why hover wont work on laptop 
-      } w-full transition-all hover:bg-[#161a1b] duration-300 flex gap-2 justify-baseline cursor-pointer p-2 rounded-none`}
+        } w-full transition-all hover:bg-[#161a1b] duration-300 flex gap-2 justify-baseline cursor-pointer p-2 py-0 rounded-none`}
       variant={"ghost"}
     >
       <div className="h-[35px] w-[35px] overflow-hidden shrink-0">
@@ -118,10 +124,26 @@ function RecBtn({
   );
 }
 
+function RecSkel() {
+
+  return (
+    <div
+      className={`h-[52px] w-full transition-all hover:bg-[#161a1b] duration-300 flex gap-2 justify-baseline cursor-pointer p-2 rounded-none`}
+    >
+      <Skeleton className="h-[35px] w-[35px] rounded-xs" />
+
+      <Skeleton className="h-[28px] w-[calc(100% - 8px)] ml-2" />
+    </div>
+  )
+}
+
+
 function CreateRec() {
+  const [isEnabled, setEnabled] = useState(true);
   const createUserInpt = useRef<HTMLInputElement | null>(null);
 
   const createRecommendation = async () => {
+    setEnabled(false)
     //check if empty
     if (createUserInpt.current != null) {
       console.log(createUserInpt.current.value);
@@ -135,10 +157,16 @@ function CreateRec() {
         }),
       });
 
-      console.log(response);
+      console.log(response.status);
+      if (response.status == 200) {
+        window.location.reload()
+      } else {
+        alert("Unable to create recommendation. Please check the username and try again.")
+      }
     } else {
       console.error("input is null");
     }
+    setEnabled(true)
   };
 
   return (
@@ -165,7 +193,9 @@ function CreateRec() {
                 className="col-span-2 h-8"
               />
             </div>
-            <Button onClick={createRecommendation}>Create!</Button>
+            <Button
+              className={`${isEnabled ? "bg-[var(--active-gradient)]" : "bg-[var(--disabled-gradient)]"} font-bold`}
+              onClick={createRecommendation}>Create!</Button>
           </div>
         </div>
       </PopoverContent>

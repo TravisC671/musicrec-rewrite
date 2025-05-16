@@ -10,7 +10,7 @@ export default clerkMiddleware(async (auth, req) => {
 
     return redirectToSignIn()
   }
-},   { debug: true })
+})
 
 export const config = {
   matcher: [

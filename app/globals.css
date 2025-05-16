@@ -52,6 +52,8 @@ body {
 }
 
 :root {
+  --active-gradient: linear-gradient(to bottom right, #1DCD9F, #7BFF9E);
+  --disabled-gradient: linear-gradient(to bottom right, #161721, #000);
   --radius: 0.625rem;
   --background: oklch(0.141 0.005 285.823);
   --foreground: oklch(0.985 0 0);
